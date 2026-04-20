@@ -76,9 +76,9 @@ These repeated oversights — in the `cast` listings for international movies an
 
 I ran a query on each column to check if its fields were hiding any leading or trailing spaces. Happily, these tests found them free of any such stowaways.
 ```sql
-SELECT column1
-FROM dataset_clean
-WHERE column1 <> TRIM(column1);
+SELECT column_name
+FROM netflix_work
+WHERE column_name <> TRIM(column_name);
 ```
 Having determined this, I decided — taking into consideration that this was a well-known public dataset and that the likely risk was low — it would be unnecessary to perform further searches for hidden and/or non-printing characters.
 
