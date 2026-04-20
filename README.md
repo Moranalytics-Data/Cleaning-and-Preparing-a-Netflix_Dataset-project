@@ -21,6 +21,9 @@ Repeated efforts to employ MySQL Workbench’s Table Data Import Wizard came to 
 
 Before getting underway, I created a working version of the dataset, `netflix_work`, in order to preserve the original.
 
+*All queries related to the file's import and initial review can be found in the document, **setup.sql**.*
+
+
 **Initial data examination**
 
 I began by running a `DESCRIBE` query to confirm that the columns had successfully imported in the desired formats.
@@ -95,6 +98,8 @@ WHERE rating LIKE '%min%';
 ```
 ​(As for TV shows, their `duration` fields listed number of seasons.)
 
+*All cleaning-related queries can be found in the document, **cleaning.sql**.*
+
 ### Building bridge tables
 
 Four columns — most extensively the `cast` and `listed_in` columns, but also those for `director` and `country` — included cells that contained multiple names or identifiers separated by commas.
@@ -137,6 +142,8 @@ That said, the bridge tables created for this project will simplify various anal
 
 However, because these tables contain many-to-many relationships, any analysis that employs them *must emphasize the potential for duplications in their counts*. For example, whereas the main table encompasses approximately 8,800 individual titles, a listing of genre types along with a count for how many titles are classified in each genre adds up to over twice that amount.
 
+*All queries related to the creation & import of the bridge tables can be found in the document, **bridge_tables_creation**.*
+
 ### Hidden characters
 
 As noted above, `cast` and `listed_in` were the two columns most conspicuously in need of bridge tables — virtually every field in these columns contained numerous comma-separated items. I therefore created those tables first and then experimented with some various “test run” queries on the results.
@@ -167,6 +174,8 @@ Such efforts as running “Trim” and/or “Clean” from PowerQuery’s *Trans
 Similarly, efforts to replace or substitute the hidden characters with an empty string — whether performed in PowerQuery or in Excel — could not eradicate them: Inevitably, they would appear in the table once imported to SQL.
 
 Although I had hoped that these could be eliminated earlier in the process, I accepted that they could only be removed within SQL, itself, and accordingly applied the aforementioned cleaning query to the `director_title_bridge` and `country_title_bridge` tables, as well.
+
+*All queries related to the cleaning of the bridge tables can be found in the document, **cleaning.sql**.*
 
 ### Bridge table analyses
 
@@ -273,6 +282,49 @@ The results, then, are no longer weighted purely towards those who happen to hav
 </p>
 
 Again, how one chooses to address such an issue — or whether one even considers it an issue at all — comes down to the specific situation or question that one is seeking to address: Another reminder of the all-importance of context.
+
+For the sake of illustration, below is the query used to determine these results. *All analysis-related queries appear in the document **analysis.sql**.*
+
+```sql
+WITH US_movie_actor_pool AS (
+	SELECT DISTINCT 
+        a.actor,
+        a.show_id
+	FROM actor_title_bridge a
+		JOIN country_title_bridge c
+			ON a.show_id = c.show_id
+		LEFT JOIN netflix_work nw
+		    ON a.show_id = nw.show_id
+	WHERE c.country = 'United States'
+      AND nw.type = 'Movie'
+),
+titles_count AS (
+	SELECT
+		actor,
+        show_id,
+		SUM(COUNT(DISTINCT show_id)) OVER(PARTITION BY actor) AS total_titles
+	FROM US_movie_actor_pool
+	GROUP BY actor, show_id
+),
+genre_count AS (
+	SELECT tc.actor,
+           tc.show_id,
+           tc.total_titles,
+		   g.genre
+    FROM titles_count tc
+		LEFT JOIN genre_title_bridge g
+			ON tc.show_id = g.show_id
+)
+SELECT actor,
+	   genre,
+       COUNT(genre),
+       SUM(COUNT(genre)) OVER(PARTITION BY actor) AS total_genre_count_per_actor,
+       COUNT(genre) / SUM(COUNT(genre)) OVER(PARTITION BY actor) AS percent_genre
+FROM genre_count
+WHERE total_titles > 4
+GROUP BY actor, genre
+ORDER BY percent_genre DESC;
+```
 
 **Ratings by genre**
 
