@@ -38,7 +38,7 @@ I also ran a query to confirm that the dataset did not contain duplicate rows.
 
 **Empty cells**
 
-The dataset clearly had numerous empty cells: They were apparent at a glance. I ran a query to determine the extent of the NULLs. (Query abridged in the example given below.)
+The dataset had numerous empty cells apparent at a glance. I ran a query to determine the extent of the NULLs. (Query abridged in the example given below.)
 ```sql
 SELECT
   COUNT(*)                     AS total_rows,
@@ -153,7 +153,7 @@ ORDER BY actor;
 ```
 A follow-up query would narrow the culprit down to a carriage return — i.e., `\r` — that appeared at the end of every field’s contents in the newly created column.
 
-In response to this, I cleaned both my newly created actor_title_bridge and genre_title_bridge tables:
+In response to this, I cleaned both my newly created `actor_title_bridge` and `genre_title_bridge` tables:
 ```sql
 UPDATE actor_title_bridge
 SET actor = REPLACE(actor, '\r', '');
@@ -173,6 +173,7 @@ Although I had hoped that these could be eliminated earlier in the process, I ac
 Having created the bridge tables, I wanted to experiment with putting them to use, both with internal comparisons and in conjunction with one another.
 
 **Actor collaborations**
+
 One potentially interesting use to which an `actor_title_bridge` table can be put is employing a self join to determine which actors have most frequently collaborated with one another.
 
 The actual execution of this analysis, though, casts an illustrative light on the various sorts of judgment calls that can be necessary to glean valuable insight from potentially “noisy” results.
@@ -300,7 +301,7 @@ As noted above, the results offer more confirmations than surprises — thriller
 
 • The inclusion of “international” in the original dataset’s `listed_in` category — where it shares space with more genre-oriented designations such as “drama,” “comedy,” etc. — is of arguable utility. In theory, a film’s “international” status should be determinable with a search of those entries not containing “United States” in their `country` field — except that the dataset is less than rigorous in this regard.
 
-As would be expected, the “international” designation is primarily appended to those titles without U.S. involvement — but, of the over-4000 productions labeled “international,” approximately 250 do list the United States in their `country` field, for reasons that are not immediately apparent. (As well, approximately 450 “international” titles have nothing listed in their `country` field at all.)
+As would be expected, the “international” designation is primarily appended to those titles without U.S. involvement — but, of the over-4000 productions labeled “international,” approximately 250 *do* list the United States in their `country` field, for reasons that are not immediately apparent. (As well, approximately 450 “international” titles have nothing listed in their `country` field at all.)
 
 Unfortunately, this is indicative of a general imprecision in the dataset’s various categorizations, as has been touched upon elsewhere. As it is, “international” seems out of place among the other classifications included in the `listed_in` field, and — because it encompasses so many titles — often ends up, unhelpfully, monopolizing space atop any genre-based analysis
 
