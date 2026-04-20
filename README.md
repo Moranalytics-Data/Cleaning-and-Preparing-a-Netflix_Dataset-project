@@ -283,7 +283,7 @@ The results, then, are no longer weighted purely towards those who happen to hav
 
 Again, how one chooses to address such an issue — or whether one even considers it an issue at all — comes down to the specific situation or question that one is seeking to address: Another reminder of the all-importance of context.
 
-For the sake of illustration, below is the query used to determine these results. *All analysis-related queries appear in the document **analysis.sql**.*
+For the sake of illustration, below is the query used to determine these results. *All analysis-related queries appear in the document, **analysis.sql**.*
 
 ```sql
 WITH US_movie_actor_pool AS (
@@ -317,9 +317,9 @@ genre_count AS (
 )
 SELECT actor,
 	   genre,
-       COUNT(genre),
-       SUM(COUNT(genre)) OVER(PARTITION BY actor) AS total_genre_count_per_actor,
-       COUNT(genre) / SUM(COUNT(genre)) OVER(PARTITION BY actor) AS percent_genre
+       COUNT(genre) AS count_in_genre,
+       SUM(COUNT(genre)) OVER(PARTITION BY actor) AS total_count_per_actor,
+       COUNT(genre) / SUM(COUNT(genre)) OVER(PARTITION BY actor) AS percent_in_genre
 FROM genre_count
 WHERE total_titles > 4
 GROUP BY actor, genre
