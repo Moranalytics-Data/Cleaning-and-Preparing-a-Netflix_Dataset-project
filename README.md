@@ -1,4 +1,4 @@
-## Cleaning-and-Preparing-a-Netflix_Dataset-project
+## Cleaning and Preparing a Netflix Dataset project
 This project is a data exploration and cleaning case study, undertaken to gain experience with the hygienic and normalizing functions of SQL and PowerQuery. This report will recount the process of preparing a Kaggle Netflix dataset for analysis, along with the performance of a small set of analytical experiments.
 
 ### Findings
